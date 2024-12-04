@@ -1,0 +1,20 @@
+{
+  "name": "vanguardterminal",
+  "version": "1.0.0",
+  "description": "Original project : https://scipnet-terminal.web.app/",
+  "main": "jquery-3.6.0.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "express": "^4.21.1",
+    "fs": "^0.0.1-security",
+    "nodemon": "^3.1.7"
+  }
+}
