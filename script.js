@@ -9,6 +9,7 @@ $(document).ready(function () {
                 <strong>Available commands:</strong><br>
                 <span class="highlight">help</span> - Show this help message<br>
                 <span class="highlight">about</span> - Information about Vanguard Industries<br>
+                <span class="highlight">contact</span> - Contact an administrator<br>
                 <span class="highlight">clear</span> - Clear the terminal<br>
             `;
         },
@@ -17,6 +18,12 @@ $(document).ready(function () {
                 <strong>Vanguard Industries Terminal</strong><br>
                 Version: 1.0.0<br>
                 Developed for advanced simulations and research.<br>
+            `;
+        },
+        contact: () => {
+            return `
+                <strong>Vanguard Industries Contact</strong><br>
+                To get in touch with a Vanguard administrator, please contact BENZOOgataga on Discord.
             `;
         },
         clear: () => {
@@ -34,7 +41,7 @@ $(document).ready(function () {
                 appendOutput(response); // Ajoute la réponse à la zone de sortie
             }
         } else {
-            appendOutput(`<span class="error">Command not recognized: "${cmd}"</span>`);
+            appendOutput(`<span class="error">Command not recognized: "${cmd}". Type "help" for available commands.</span>`);
         }
     }
 
