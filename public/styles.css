@@ -1,71 +1,134 @@
 /* Global styles */
 body {
     font-family: 'Source Code Pro', monospace;
-    background-color: #1e1e1e;
+    background-color: #121212;
     color: #f5d546;
     margin: 0;
     padding: 0;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
+    justify-content: flex-start;
+    align-items: stretch;
+    height: 100vh; /* Full height */
+    overflow: hidden; /* Prevents overflow */
+    font-size: 16px;
+}
+
+/* Sidebar */
+#sidebar {
+    background-color: #1f1f1f;
+    color: #f5d546;
+    padding: 15px;
+    width: 250px;
+    height: 100%; /* Full height */
+    border-right: 2px solid #f5d546;
+    box-shadow: 3px 0 10px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    position: fixed; /* Keep sidebar fixed */
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 10; /* Ensure it's on top */
+    overflow-y: auto;
+}
+
+/* System Info */
+#sysStatus {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-top: 10px;
+}
+
+#sysStatus div {
+    margin-bottom: 8px;
 }
 
 /* Terminal container */
 #terminal {
-    background-color: #111;
-    width: 80%;
-    max-width: 900px;
-    border: 1px solid #f5d546;
-    border-radius: 5px;
-    padding: 15px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+    background-color: #222;
+    border: 2px solid #f5d546;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Allow terminal to grow */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    margin-left: 270px; /* Add margin to the left for sidebar */
+    position: relative;
+    height: 100%; /* Ensure terminal fills full height */
+    overflow: hidden;
 }
 
 /* Header */
 .header {
     text-align: center;
-    border-bottom: 1px solid #f5d546;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+    color: #f5d546;
+    font-size: 24px;
+    text-transform: uppercase;
 }
 
-/* Output section */
+/* Output area */
 #output {
-    height: 300px;
+    flex: 1;
     overflow-y: auto;
     background-color: #1e1e1e;
-    padding: 10px;
-    border: 1px solid #f5d546;
-    border-radius: 5px;
-    margin-bottom: 10px;
     color: #fff;
-    font-size: 14px;
-    line-height: 1.5;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #444;
+    margin-bottom: 10px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    height: calc(100vh - 120px); /* Adjust height to allow space for input area */
 }
 
-/* Input box */
+/* Input box (command part) */
 .textbox {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #444;
+    padding-top: 10px;
+    position: relative;
+    margin-top: auto; /* Push input area towards the bottom */
+    margin-bottom: 20px; /* Space from bottom */
 }
 
 #commandInput {
-    flex: 1;
-    background-color: #000;
+    background-color: #333;
     border: 1px solid #f5d546;
     border-radius: 5px;
     color: #f5d546;
     padding: 10px;
     font-size: 14px;
+    width: 100%;
     outline: none;
+    box-sizing: border-box;
+    transition: border 0.3s ease;
 }
 
-#commandInput::placeholder {
-    color: #777;
+#commandInput:focus {
+    border: 1px solid #f5d546;
 }
 
-/* Scrollbar customization */
+/* Buttons */
+button {
+    background-color: #f5d546;
+    color: #222;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #e0c137;
+}
+
+/* Scrollbars */
 #output::-webkit-scrollbar {
     width: 8px;
 }
@@ -73,4 +136,60 @@ body {
 #output::-webkit-scrollbar-thumb {
     background: #444;
     border-radius: 5px;
+}
+
+#commandInput::-webkit-scrollbar {
+    width: 6px;
+}
+
+#commandInput::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 5px;
+}
+
+/* Highlighted text */
+.highlight {
+    color: #f5d546;
+    font-weight: bold;
+}
+
+/* Error message */
+.error {
+    color: #ff5555;
+}
+
+/* Animation for commands */
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+p {
+    animation: fadeIn 1s ease-in;
+    margin: 5px 0;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+    #terminal {
+        width: 95%;
+        height: 80vh;
+        padding: 15px;
+    }
+
+    .header {
+        font-size: 20px;
+    }
+
+    #commandInput {
+        font-size: 12px;
+    }
+
+    button {
+        font-size: 12px;
+    }
+
+    #sidebar {
+        width: 200px;
+    }
 }

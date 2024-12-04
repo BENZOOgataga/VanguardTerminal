@@ -2,102 +2,100 @@ $(document).ready(function () {
     const $output = $("#output");
     const $input = $("#commandInput");
 
-    // Commandes disponibles
+    let currentUser = 'guest'; // Default user is 'guest'
+    
+    // Fake system data for aesthetic
+    const systemInfo = {
+        ip: '192.168.1.100',
+        os: 'Linux VanguardOS',
+        uptime: '72 days, 6 hours',
+        cpu: 56,  // We'll change this dynamically
+        memory: { used: 3.4, total: 8 },  // GB
+    };
+
+    // Update system stats dynamically
+    function updateSystemInfo() {
+        // Simulate dynamic updates every few seconds
+        systemInfo.cpu = Math.floor(Math.random() * 100);  // Random CPU usage
+        systemInfo.memory.used = (Math.random() * systemInfo.memory.total).toFixed(1);  // Random memory usage
+
+        $('#cpuUsage').text(`${systemInfo.cpu}%`);
+        $('#memoryUsage').text(`${systemInfo.memory.used} GB / ${systemInfo.memory.total} GB`);
+        $('#uptime').text(`72d 6h`);  // Keeping uptime static for simplicity
+    }
+
+    // Simulate system info updates every 3 seconds
+    setInterval(updateSystemInfo, 3000);
+
+    // Simulate login commands
     const commands = {
         help: () => `
             <strong>Available commands:</strong><br>
             <span class="highlight">help</span> - Show this help message<br>
             <span class="highlight">about</span> - Information about Vanguard Industries<br>
             <span class="highlight">clear</span> - Clear the terminal<br>
-            <span class="highlight">touch [filename]</span> - Create a new file<br>
-            <span class="highlight">edit [filename]</span> - Edit an existing file<br>
-            <span class="highlight">rm [filename]</span> - Delete a file<br>
-            <span class="highlight">ls</span> - List all files<br>
-            <span class="highlight">cat [filename]</span> - View file content<br>
-            <span class="highlight">pwd</span> - Show current working directory<br>
+            <span class="highlight">login [user]</span> - Login as a user (guest, admin, root)<br>
+            <span class="highlight">status</span> - Show system status<br>
+            <span class="highlight">ls</span> - List files in the "data" folder<br>
             <span class="highlight">echo [text]</span> - Print text to the terminal<br>
+            <span class="highlight">exit</span> - Log out
         `,
         about: () => `
             <strong>Vanguard Industries Terminal</strong><br>
             Version: 1.2.0<br>
-            A fully interactive terminal with file management capabilities.<br>
+            This is a hacker-themed terminal with simulated login and system data.<br>
         `,
         clear: () => {
             $output.html("");
             return null;
         },
-        pwd: () => {
-            return `/data`;
+        login: (args) => {
+            const username = args[0];
+            if (!username) return "Error: Missing username.";
+            
+            // Simulate login for different users
+            if (username === 'admin' || username === 'root' || username === 'guest') {
+                currentUser = username;
+                appendOutput(`Login successful as ${username}. Type 'help' for commands.`);
+                updatePrompt();
+                return;
+            }
+
+            return `Error: Invalid username "${username}". Try 'guest', 'admin', or 'root'.`;
+        },
+        status: () => {
+            return `
+                <strong>System Info:</strong><br>
+                IP Address: ${systemInfo.ip}<br>
+                OS: ${systemInfo.os}<br>
+                Uptime: ${systemInfo.uptime}<br>
+                CPU Usage: ${systemInfo.cpu}%<br>
+                Memory Usage: ${systemInfo.memory.used} GB / ${systemInfo.memory.total} GB<br>
+            `;
+        },
+        ls: () => {
+            return "example.txt\nnotes.txt\nconfig.json";
         },
         echo: (args) => {
             return args.join(" ");
         },
-        touch: async (args) => {
-            const filename = args[0];
-            if (!filename) return "Error: Missing filename.";
-            try {
-                const response = await fetch('/api/touch', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ filename }),
-                });
-                const text = await response.text();
-                return response.ok ? text : `Error: ${text}`;
-            } catch (error) {
-                return "Error: Unable to create file.";
-            }
-        },
-        edit: async (args) => {
-            const filename = args[0];
-            if (!filename) return "Error: Missing filename.";
-            const content = prompt(`Edit "${filename}":`);
-            if (content === null) return "Edit cancelled.";
-            try {
-                const response = await fetch('/api/edit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ filename, content }),
-                });
-                const text = await response.text();
-                return response.ok ? text : `Error: ${text}`;
-            } catch (error) {
-                return "Error: Unable to edit file.";
-            }
-        },
-        rm: async (args) => {
-            const filename = args[0];
-            if (!filename) return "Error: Missing filename.";
-            try {
-                const response = await fetch(`/api/rm/${filename}`, { method: 'DELETE' });
-                const text = await response.text();
-                return response.ok ? text : `Error: ${text}`;
-            } catch (error) {
-                return "Error: Unable to delete file.";
-            }
-        },
-        ls: async () => {
-            try {
-                const response = await fetch('/api/ls');
-                const files = await response.json();
-                return files.length ? `Files:<br>${files.join("<br>")}` : "No files found.";
-            } catch (error) {
-                return "Error: Unable to list files.";
-            }
-        },
-        cat: async (args) => {
-            const filename = args[0];
-            if (!filename) return "Error: Missing filename.";
-            try {
-                const response = await fetch(`/api/cat/${filename}`);
-                const text = await response.text();
-                return response.ok ? text : `Error: ${text}`;
-            } catch (error) {
-                return "Error: Unable to read file.";
-            }
-        },
+        exit: () => {
+            appendOutput("Logging out...");
+            currentUser = 'guest';  // Default user
+            updatePrompt();
+            return null;
+        }
     };
 
-    // Fonction pour exécuter une commande
+    // Update prompt based on the current user (guest, admin, root)
+    function updatePrompt() {
+        let promptText = currentUser === 'guest' ? 
+            `guest@vanguard:~$ ` : 
+            `${currentUser}@vanguard:~# `;
+        $('#commandInput').attr("placeholder", promptText);
+    }
+
+    // Function to execute commands
     async function executeCommand(input) {
         const [cmd, ...args] = input.trim().split(" ");
         if (commands[cmd]) {
@@ -110,13 +108,13 @@ $(document).ready(function () {
         }
     }
 
-    // Fonction pour afficher du texte dans la zone de sortie
+    // Function to append output in terminal
     function appendOutput(content) {
         $output.append(`<p>${content}</p>`);
         $output.scrollTop($output[0].scrollHeight);
     }
 
-    // Gestion de l'événement "Entrée" sur le champ de saisie
+    // Event listener for command input
     $input.on("keydown", function (e) {
         if (e.key === "Enter") {
             const value = $input.val();
@@ -125,4 +123,7 @@ $(document).ready(function () {
             $input.val("");
         }
     });
+
+    // Initial prompt setup
+    updatePrompt();
 });

@@ -5,16 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Vanguard Industries Terminal</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Lien vers le fichier CSS -->
-    <script src="jquery-3.6.0.min.js"></script> <!-- Lien vers jQuery -->
-    <script src="script.js" defer></script> <!-- Lien vers le fichier JS -->
+    <link rel="stylesheet" href="styles.css">
+    <script src="jquery-3.6.0.min.js"></script>
+    <script src="script.js" defer></script>
 </head>
 <body>
-    <div id="dimmer"></div>
-    <div id="terminal">
-        <div class="header">
-            <h1>Vanguard Industries Terminal</h1>
+    <div id="sidebar">
+        <div id="sysStatus">
+            <div><strong>IP Address:</strong> <span id="ipAddress">192.168.1.100</span></div>
+            <div><strong>OS:</strong> Linux VanguardOS</div>
+            <div><strong>CPU Usage:</strong> <span id="cpuUsage">56%</span></div>
+            <div><strong>Memory Usage:</strong> <span id="memoryUsage">3.4 GB / 8 GB</span></div>
+            <div><strong>Uptime:</strong> <span id="uptime">72d 6h</span></div>
         </div>
+    </div>
+    
+    <div id="terminal">
+        <div class="header">Vanguard Industries Terminal</div>
         <div id="output">
             <p>Welcome to the Vanguard Terminal. Type "help" for available commands.</p>
         </div>
