@@ -1,4 +1,10 @@
 $(document).ready(function () {
+    // Hide loading screen after a few seconds
+    setTimeout(() => {
+        $('#loadingScreen').fadeOut(1000);  // Fade out loading screen in 1 second
+        $('#terminal').fadeIn(1000); // Fade in the terminal after loading screen fades
+    }, 3000);  // Wait 3 seconds before hiding the loading screen
+
     const $output = $("#output");
     const $input = $("#commandInput");
 

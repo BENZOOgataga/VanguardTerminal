@@ -10,17 +10,26 @@
     <script src="script.js" defer></script>
 </head>
 <body>
-    <div id="sidebar">
-        <div id="sysStatus">
-            <div><strong>IP Address:</strong> <span id="ipAddress">192.168.1.100</span></div>
-            <div><strong>OS:</strong> Linux VanguardOS</div>
-            <div><strong>CPU Usage:</strong> <span id="cpuUsage">56%</span></div>
-            <div><strong>Memory Usage:</strong> <span id="memoryUsage">3.4 GB / 8 GB</span></div>
-            <div><strong>Uptime:</strong> <span id="uptime">72d 6h</span></div>
+    <!-- Loading Screen -->
+    <div id="loadingScreen">
+        <div id="loadingText">
+            <span>Starting Vanguard VM...</span>
         </div>
     </div>
-    
-    <div id="terminal">
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div id="sysStatus">
+            <div>IP Address: 192.168.1.1</div>
+            <div>CPU: Intel Core i7</div>
+            <div>Memory: 16 GB</div>
+            <div>Disk Space: 100 GB</div>
+            <!-- Add more system info here as needed -->
+        </div>
+    </div>
+
+    <!-- Terminal Container (Initially hidden) -->
+    <div id="terminal" style="display:none;">
         <div class="header">Vanguard Industries Terminal</div>
         <div id="output">
             <p>Welcome to the Vanguard Terminal. Type "help" for available commands.</p>
