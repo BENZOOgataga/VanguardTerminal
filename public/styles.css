@@ -55,7 +55,7 @@ body {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
     margin-left: 270px; /* Add margin to the left for sidebar */
     position: relative;
-    height: 100%; /* Ensure terminal fills full height */
+    height: 99%; /* Ensure terminal fills full height */
     overflow: hidden;
 }
 

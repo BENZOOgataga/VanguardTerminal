@@ -2,48 +2,31 @@ $(document).ready(function () {
     const $output = $("#output");
     const $input = $("#commandInput");
 
-    let currentUser = 'guest'; // Default user is 'guest'
-    
-    // Fake system data for aesthetic
-    const systemInfo = {
-        ip: '192.168.1.100',
-        os: 'Linux VanguardOS',
-        uptime: '72 days, 6 hours',
-        cpu: 56,  // We'll change this dynamically
-        memory: { used: 3.4, total: 8 },  // GB
-    };
+    let currentUser = 'guest'; // Default user
+    let authenticated = false; // Whether the user is logged in
+    const userPasswords = { root: 'root', guest: 'guest', admin: 'admin' }; // Default passwords
 
-    // Update system stats dynamically
-    function updateSystemInfo() {
-        // Simulate dynamic updates every few seconds
-        systemInfo.cpu = Math.floor(Math.random() * 100);  // Random CPU usage
-        systemInfo.memory.used = (Math.random() * systemInfo.memory.total).toFixed(1);  // Random memory usage
+    let inputMode = null; // Tracks the current input mode and type
 
-        $('#cpuUsage').text(`${systemInfo.cpu}%`);
-        $('#memoryUsage').text(`${systemInfo.memory.used} GB / ${systemInfo.memory.total} GB`);
-        $('#uptime').text(`72d 6h`);  // Keeping uptime static for simplicity
-    }
-
-    // Simulate system info updates every 3 seconds
-    setInterval(updateSystemInfo, 3000);
-
-    // Simulate login commands
     const commands = {
         help: () => `
             <strong>Available commands:</strong><br>
             <span class="highlight">help</span> - Show this help message<br>
             <span class="highlight">about</span> - Information about Vanguard Industries<br>
             <span class="highlight">clear</span> - Clear the terminal<br>
-            <span class="highlight">login [user]</span> - Login as a user (guest, admin, root)<br>
-            <span class="highlight">status</span> - Show system status<br>
-            <span class="highlight">ls</span> - List files in the "data" folder<br>
+            <span class="highlight">login [user]</span> - Login as a user (e.g., root, admin, guest)<br>
+            <span class="highlight">passwd</span> - Change your password<br>
+            <span class="highlight">ls</span> - List files<br>
+            <span class="highlight">cat [filename]</span> - View the contents of a file<br>
+            <span class="highlight">touch [filename]</span> - Create a new file<br>
+            <span class="highlight">edit [filename]</span> - Edit a file<br>
+            <span class="highlight">rm [filename]</span> - Delete a file<br>
             <span class="highlight">echo [text]</span> - Print text to the terminal<br>
-            <span class="highlight">exit</span> - Log out
+            <span class="highlight">exit</span> - Log out<br>
         `,
         about: () => `
             <strong>Vanguard Industries Terminal</strong><br>
-            Version: 1.2.0<br>
-            This is a hacker-themed terminal with simulated login and system data.<br>
+            A hacker-style interactive terminal with dynamic commands.<br>
         `,
         clear: () => {
             $output.html("");
@@ -52,78 +35,132 @@ $(document).ready(function () {
         login: (args) => {
             const username = args[0];
             if (!username) return "Error: Missing username.";
-            
-            // Simulate login for different users
-            if (username === 'admin' || username === 'root' || username === 'guest') {
-                currentUser = username;
-                appendOutput(`Login successful as ${username}. Type 'help' for commands.`);
-                updatePrompt();
-                return;
-            }
+            if (!userPasswords[username]) return `Error: User "${username}" not found.`;
 
-            return `Error: Invalid username "${username}". Try 'guest', 'admin', or 'root'.`;
+            appendOutput(`Enter password for ${username}:`);
+            setInputMode({ type: 'login', username }, (password) => {
+                if (password === userPasswords[username]) {
+                    currentUser = username;
+                    authenticated = true;
+                    resetInputMode();
+                    updatePrompt();
+                    appendOutput(`Login successful as ${username}. Type 'help' for commands.`);
+                } else {
+                    appendOutput("Error: Incorrect password.");
+                    resetInputMode(); // Allow retrying
+                }
+            });
         },
-        status: () => {
-            return `
-                <strong>System Info:</strong><br>
-                IP Address: ${systemInfo.ip}<br>
-                OS: ${systemInfo.os}<br>
-                Uptime: ${systemInfo.uptime}<br>
-                CPU Usage: ${systemInfo.cpu}%<br>
-                Memory Usage: ${systemInfo.memory.used} GB / ${systemInfo.memory.total} GB<br>
-            `;
+        passwd: () => {
+            if (!authenticated) return "Error: You must be logged in to change your password.";
+
+            appendOutput("Enter your current password:");
+            setInputMode({ type: 'passwd', step: 1, newPassword: '' }, (input) => {
+                if (inputMode.step === 1) {
+                    // Verify current password
+                    if (input !== userPasswords[currentUser]) {
+                        appendOutput("Error: Incorrect current password.");
+                        resetInputMode(); // Exit passwd flow
+                        return;
+                    }
+                    appendOutput("Enter new password:");
+                    inputMode.step = 2;
+                } else if (inputMode.step === 2) {
+                    // Save new password temporarily
+                    inputMode.newPassword = input;
+                    appendOutput("Confirm new password:");
+                    inputMode.step = 3;
+                } else if (inputMode.step === 3) {
+                    // Confirm new password
+                    if (input !== inputMode.newPassword) {
+                        appendOutput("Error: Passwords do not match.");
+                        resetInputMode(); // Exit passwd flow
+                        return;
+                    }
+                    userPasswords[currentUser] = inputMode.newPassword;
+                    appendOutput("Password changed successfully.");
+                    resetInputMode(); // Exit passwd flow
+                }
+            });
         },
-        ls: () => {
-            return "example.txt\nnotes.txt\nconfig.json";
+        ls: () => "example.txt\nnotes.txt\nconfig.json",
+        cat: (args) => {
+            const filename = args[0];
+            return filename ? `Viewing contents of "${filename}"` : "Error: Missing filename.";
         },
-        echo: (args) => {
-            return args.join(" ");
+        touch: (args) => {
+            const filename = args[0];
+            return filename ? `File "${filename}" created.` : "Error: Missing filename.";
         },
+        edit: (args) => {
+            const filename = args[0];
+            return filename ? `Editing file "${filename}"...` : "Error: Missing filename.";
+        },
+        rm: (args) => {
+            const filename = args[0];
+            return filename ? `File "${filename}" deleted.` : "Error: Missing filename.";
+        },
+        echo: (args) => args.join(" "),
         exit: () => {
-            appendOutput("Logging out...");
-            currentUser = 'guest';  // Default user
-            updatePrompt();
-            return null;
+            if (authenticated) {
+                appendOutput(`Logging out ${currentUser}...`);
+                authenticated = false;
+                currentUser = 'guest';
+                updatePrompt();
+            } else {
+                appendOutput("Error: You are not logged in.");
+            }
         }
     };
 
-    // Update prompt based on the current user (guest, admin, root)
+    // Set input mode for custom flows like login or passwd
+    function setInputMode(mode, callback) {
+        inputMode = mode;
+        inputMode.callback = callback;
+        $input.val("");
+        $input.attr("type", mode.type === 'login' || mode.type === 'passwd' ? 'password' : 'text');
+    }
+
+    // Reset input mode to default
+    function resetInputMode() {
+        inputMode = null;
+        $input.attr("type", "text");
+    }
+
+    // Update the terminal prompt
     function updatePrompt() {
-        let promptText = currentUser === 'guest' ? 
-            `guest@vanguard:~$ ` : 
-            `${currentUser}@vanguard:~# `;
-        $('#commandInput').attr("placeholder", promptText);
+        const promptText = authenticated ? 
+            `${currentUser}@vanguard:~# ` : 
+            `guest@vanguard:~$ `;
+        $input.attr("placeholder", promptText);
     }
 
-    // Function to execute commands
-    async function executeCommand(input) {
-        const [cmd, ...args] = input.trim().split(" ");
-        if (commands[cmd]) {
-            const response = await commands[cmd](args);
-            if (response) {
-                appendOutput(response);
-            }
-        } else {
-            appendOutput(`<span class="error">Command not recognized: "${cmd}"</span>`);
-        }
-    }
-
-    // Function to append output in terminal
+    // Append content to the terminal
     function appendOutput(content) {
         $output.append(`<p>${content}</p>`);
         $output.scrollTop($output[0].scrollHeight);
     }
 
-    // Event listener for command input
+    // Command execution logic
     $input.on("keydown", function (e) {
         if (e.key === "Enter") {
             const value = $input.val();
             appendOutput(`<span class="input">> ${value}</span>`);
-            executeCommand(value);
+            if (inputMode && inputMode.callback) {
+                inputMode.callback(value);
+            } else {
+                const [cmd, ...args] = value.trim().split(" ");
+                if (commands[cmd]) {
+                    const response = commands[cmd](args);
+                    if (response) appendOutput(response);
+                } else {
+                    appendOutput(`<span class="error">Command not recognized: "${cmd}"</span>`);
+                }
+            }
             $input.val("");
         }
     });
 
-    // Initial prompt setup
+    // Initialize terminal
     updatePrompt();
 });
