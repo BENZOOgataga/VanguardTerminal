@@ -83,7 +83,15 @@ $(document).ready(function () {
                 }
             });
         },
-        ls: () => "example.txt\nnotes.txt\nconfig.json",
+        ls: async () => {
+            try {
+                const response = await fetch('/api/ls');
+                const files = await response.json();
+                return files.length ? `Files:<br>${files.join("<br>")}` : "No files found.";
+            } catch (error) {
+                return "Error: Unable to list files.";
+            }
+        },
         cat: (args) => {
             const filename = args[0];
             return filename ? `Viewing contents of "${filename}"` : "Error: Missing filename.";
