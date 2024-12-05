@@ -5,16 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Vanguard Industries Terminal</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Lien vers le fichier CSS -->
-    <script src="jquery-3.6.0.min.js"></script> <!-- Lien vers jQuery -->
-    <script src="script.js" defer></script> <!-- Lien vers le fichier JS -->
+    <link rel="stylesheet" href="styles.css">
+    <script src="jquery-3.6.0.min.js"></script>
+    <script src="script.js" defer></script>
 </head>
 <body>
-    <div id="dimmer"></div>
-    <div id="terminal">
-        <div class="header">
-            <h1>Vanguard Industries Terminal</h1>
+    <!-- Loading Screen -->
+    <div id="loadingScreen">
+        <div id="loadingText">
+            <span>Starting Vanguard VM...</span>
         </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div id="sysStatus">
+            <div>IP Address: 192.168.1.1</div>
+            <div>CPU: Intel Core i7</div>
+            <div>Memory: 16 GB</div>
+            <div>Disk Space: 100 GB</div>
+            <!-- Add more system info here as needed -->
+        </div>
+    </div>
+
+    <!-- Terminal Container (Initially hidden) -->
+    <div id="terminal" style="display:none;">
+        <div class="header">Vanguard Industries Terminal</div>
         <div id="output">
             <p>Welcome to the Vanguard Terminal. Type "help" for available commands.</p>
         </div>
